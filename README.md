@@ -2,7 +2,7 @@
 
 Almin + CQRS example
 
-## Flow
+## WorkFlow
 
 ### Write
 
@@ -19,14 +19,9 @@ Almin + CQRS example
 4. Just in time, Store convert the Domain model to the State.
 6. Render the view with the state.
 
-## Install
-
-Install with [npm](https://www.npmjs.com/):
-
-    npm install almin-cqrs-example
-
 ## Usage
 
+    npm install
     npm start
     # open http://localhost:8080
 
