@@ -1,10 +1,10 @@
 // LICENSE : MIT
 "use strict";
 import React from "react"
-import IncrementalCounterUseCase from "../use-case/IncrementalCounterUseCase"
-import DecrementalCounterUseCase from "../use-case/DecrementalCounterUseCase"
 import { Context } from "almin"
-import RandomCounterUseCase from "../use-case/RandomCounterUseCase";
+import IncrementalCounterUseCase from "../use-case/counter/IncrementalCounterUseCase"
+import DecrementalCounterUseCase from "../use-case/counter/DecrementalCounterUseCase"
+import RandomCounterUseCase from "../use-case/counter/RandomCounterUseCase";
 import UpdateLoadingStatusUseCase from "../use-case/app/UpdateLoadingStatusUseCase";
 export interface CounterComponentProps {
     count: number;

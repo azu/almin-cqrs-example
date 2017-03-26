@@ -1,7 +1,8 @@
 // LICENSE : MIT
 "use strict";
-import { appRepository } from "../repository/AppRepository";
-import { AppUseCase } from "./AppUseCase";
+import { appRepository } from "../../repository/AppRepository";
+import { AppUseCase } from "../AppUseCase";
+
 const wait = (waitMS: number) => {
     return new Promise((resolve) => {
         setTimeout(resolve, waitMS);
