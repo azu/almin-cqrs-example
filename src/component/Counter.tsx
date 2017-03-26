@@ -5,6 +5,7 @@ import IncrementalCounterUseCase from "../use-case/IncrementalCounterUseCase"
 import DecrementalCounterUseCase from "../use-case/DecrementalCounterUseCase"
 import { Context } from "almin"
 import RandomCounterUseCase from "../use-case/RandomCounterUseCase";
+import UpdateLoadingStatusUseCase from "../use-case/app/UpdateLoadingStatusUseCase";
 export interface CounterComponentProps {
     count: number;
     context: Context;
@@ -19,7 +20,12 @@ export default class CounterComponent extends React.Component<CounterComponentPr
             context.useCase(new DecrementalCounterUseCase()).execute();
         };
         const random = () => {
-            context.useCase(new RandomCounterUseCase()).execute();
+            const callback = () => {
+                return context.useCase(new UpdateLoadingStatusUseCase()).execute(false);
+            };
+            context.useCase(new UpdateLoadingStatusUseCase()).execute(true).then(() => {
+                return context.useCase(new RandomCounterUseCase()).execute();
+            }).then(callback, callback)
         };
         return (
             <div>

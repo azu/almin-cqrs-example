@@ -2,20 +2,17 @@
 "use strict";
 import React from "react";
 import Counter from './Counter';
+import Loading from './Loading/Loading';
 import { Context, Payload, Dispatcher } from "almin";
 const AlminLogger = require("almin-logger");
-import { CounterState } from "../store/couter/CounterState";
 import { AppUseCaseType, AppUseCase } from "../use-case/AppUseCase";
 interface AppProps {
     context: Context;
 }
-interface AppState {
-    counterState: CounterState
-}
-
 // context
-import AppStore from "../store/AppStore";
-const store = AppStore.create();
+import { AppStoreGroup } from "../store/AppStoreGroup";
+import { AppStoreGroupState } from "../store/AppStoreGroup";
+const store = AppStoreGroup.create();
 const context = new Context({
     dispatcher: new Dispatcher(),
     store
@@ -24,10 +21,10 @@ const context = new Context({
 const logger = new AlminLogger();
 logger.startLogging(context);
 
-export default class App extends React.Component<AppProps, AppState> {
+export default class App extends React.Component<AppProps, AppStoreGroupState> {
     constructor() {
         super();
-        this.state = context.getState<AppState>();
+        this.state = context.getState<AppStoreGroupState>();
     }
 
     componentDidMount() {
@@ -50,6 +47,9 @@ export default class App extends React.Component<AppProps, AppState> {
 
     render() {
         const counterState = this.state.counterState;
-        return <Counter count={counterState.count} context={context}/>
+        return <div>
+            <Counter count={counterState.count} context={context}/>
+            <Loading hidden={!this.state.appState.isLoading}/>
+        </div>
     }
 }
