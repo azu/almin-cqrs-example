@@ -2,10 +2,10 @@
 "use strict";
 import React from "react"
 import { Context } from "almin"
-import IncrementalCounterUseCase from "../use-case/counter/IncrementalCounterUseCase"
-import DecrementalCounterUseCase from "../use-case/counter/DecrementalCounterUseCase"
-import RandomCounterUseCase from "../use-case/counter/RandomCounterUseCase";
-import UpdateLoadingStatusUseCase from "../use-case/app/UpdateLoadingStatusUseCase";
+import { createIncrementalCounterUseCase } from "../use-case/counter/IncrementalCounterUseCase"
+import { createDecrementalCounterUseCase } from "../use-case/counter/DecrementalCounterUseCase"
+import { createRandomCounterUseCase } from "../use-case/counter/RandomCounterUseCase";
+import { UpdateLoadingStatusUseCase } from "../use-case/app/UpdateLoadingStatusUseCase";
 export interface CounterComponentProps {
     count: number;
     context: Context;
@@ -14,17 +14,17 @@ export default class CounterComponent extends React.Component<CounterComponentPr
     render() {
         const {context} = this.props;
         const increment = () => {
-            context.useCase(new IncrementalCounterUseCase()).execute();
+            context.useCase(createIncrementalCounterUseCase()).execute();
         };
         const decrement = () => {
-            context.useCase(new DecrementalCounterUseCase()).execute();
+            context.useCase(createDecrementalCounterUseCase()).execute();
         };
         const random = () => {
             const callback = () => {
                 return context.useCase(new UpdateLoadingStatusUseCase()).execute(false);
             };
             context.useCase(new UpdateLoadingStatusUseCase()).execute(true).then(() => {
-                return context.useCase(new RandomCounterUseCase()).execute();
+                return context.useCase(createRandomCounterUseCase()).execute();
             }).then(callback, callback)
         };
         return (

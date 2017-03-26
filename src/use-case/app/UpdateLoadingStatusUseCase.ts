@@ -5,7 +5,9 @@ export class UpdateLoadingStatusUseCasePayload extends Payload {
         super({type: "UpdateLoadingStatusUseCasePayload"});
     }
 }
-export default class UpdateLoadingStatusUseCase extends UseCase {
+
+// TODO: should be function
+export class UpdateLoadingStatusUseCase extends UseCase {
     execute(isLoading: boolean) {
         this.dispatch(new UpdateLoadingStatusUseCasePayload(isLoading));
     }

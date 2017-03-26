@@ -1,11 +1,18 @@
 // LICENSE : MIT
 "use strict";
-import { appRepository } from "../../repository/AppRepository";
+import { appRepository, AppRepository } from "../../repository/AppRepository";
 import { AppUseCase } from "../AppUseCase";
+export const createDecrementalCounterUseCase = () => {
+    return new DecrementalCounterUseCase(appRepository);
+};
 export default class DecrementalCounterUseCase extends AppUseCase {
+    constructor(public appRepository: AppRepository) {
+        super();
+    }
+
     execute() {
-        const app = appRepository.get();
+        const app = this.appRepository.get();
         app.counter.decrement();
-        appRepository.save(app);
+        this.appRepository.save(app);
     }
 }
