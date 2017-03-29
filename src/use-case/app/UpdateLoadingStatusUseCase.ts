@@ -1,14 +1,17 @@
 // MIT © 2017 azu
-import { UseCase, Payload } from "almin";
+import { Payload, FunctionalUseCaseContext } from "almin";
+import { UpdateLoadingStatusUseCaseArgs } from './UpdateLoadingStatusUseCase';
 export class UpdateLoadingStatusUseCasePayload extends Payload {
     constructor(public isLoading: boolean) {
-        super({type: "UpdateLoadingStatusUseCasePayload"});
+        super({ type: "UpdateLoadingStatusUseCasePayload" });
     }
 }
-
-// TODO: should be function
-export class UpdateLoadingStatusUseCase extends UseCase {
-    execute(isLoading: boolean) {
-        this.dispatch(new UpdateLoadingStatusUseCasePayload(isLoading));
+export interface UpdateLoadingStatusUseCaseArgs {
+    isLoading: boolean;
+}
+// Functional useCase
+export const UpdateLoadingStatusUseCase = ({ dispatcher }: FunctionalUseCaseContext) => {
+    return (args: UpdateLoadingStatusUseCaseArgs) => {
+        dispatcher.dispatch(new UpdateLoadingStatusUseCasePayload(args.isLoading));
     }
 }
