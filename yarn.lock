@@ -66,15 +66,20 @@ almin-logger@^4.0.2:
   dependencies:
     map-like "^1.0.3"
 
+almin-react-container@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/almin-react-container/-/almin-react-container-0.1.1.tgz#020e921713ca443e64bb6fdea13f17154593e29a"
+
 almin-reduce-store@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/almin-reduce-store/-/almin-reduce-store-1.0.2.tgz#bee4318a7d096bc026633370e8f6341fe48ee028"
 
-almin@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/almin/-/almin-0.10.0.tgz#2aea743adb4682fbd7cdbeeda814ee892edf2d41"
+almin@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/almin/-/almin-0.11.0.tgz#4bf913559b53cbc685875115bada70a718422f85"
   dependencies:
     lru-map-like "^1.1.2"
+    map-like "^1.1.0"
     object-assign "^4.1.0"
 
 ansi-html@0.0.7:

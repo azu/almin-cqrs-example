@@ -1,34 +1,32 @@
 // LICENSE : MIT
 "use strict";
 import React from "react"
-import { Context } from "almin"
+import AppLocator from "../AppLocator";
 import { createIncrementalCounterUseCase } from "../use-case/counter/IncrementalCounterUseCase"
 import { createDecrementalCounterUseCase } from "../use-case/counter/DecrementalCounterUseCase"
 import { createRandomCounterUseCase } from "../use-case/counter/RandomCounterUseCase";
 import { UpdateLoadingStatusUseCase, UpdateLoadingStatusUseCaseArgs } from "../use-case/app/UpdateLoadingStatusUseCase";
 export interface CounterComponentProps {
     count: number;
-    context: Context;
 }
 export default class CounterComponent extends React.Component<CounterComponentProps, any> {
     render() {
-        const { context } = this.props;
         const increment = () => {
-            context.useCase(createIncrementalCounterUseCase()).execute();
+            AppLocator.context.useCase(createIncrementalCounterUseCase()).execute();
         };
         const decrement = () => {
-            context.useCase(createDecrementalCounterUseCase()).execute();
+            AppLocator.context.useCase(createDecrementalCounterUseCase()).execute();
         };
         const random = () => {
             const callback = () => {
-                return context.useCase(UpdateLoadingStatusUseCase).execute<UpdateLoadingStatusUseCaseArgs>({
+                return AppLocator.context.useCase(UpdateLoadingStatusUseCase).execute<UpdateLoadingStatusUseCaseArgs>({
                     isLoading: false
                 });
             };
-            context.useCase(UpdateLoadingStatusUseCase).execute<UpdateLoadingStatusUseCaseArgs>({
+            AppLocator.context.useCase(UpdateLoadingStatusUseCase).execute<UpdateLoadingStatusUseCaseArgs>({
                 isLoading: true
             }).then(() => {
-                return context.useCase(createRandomCounterUseCase()).execute();
+                return AppLocator.context.useCase(createRandomCounterUseCase()).execute();
             }).then(callback, callback)
         };
         return (

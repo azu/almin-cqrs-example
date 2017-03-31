@@ -71,8 +71,9 @@
     "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {
-    "almin": "^0.10.0",
+    "almin": "^0.11.0",
     "almin-logger": "^4.0.2",
+    "almin-react-container": "^0.1.1",
     "almin-reduce-store": "^1.0.2",
     "map-like": "^1.1.0",
     "react": "^15.4.2",

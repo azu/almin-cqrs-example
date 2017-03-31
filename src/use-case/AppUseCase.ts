@@ -11,7 +11,7 @@ class AppChangePayload extends Payload {
 }
 const appChangePayload = new AppChangePayload();
 export function Changdable<T extends Constructor<Context>>(Base: T) {
-    return class extends Base {
+    return class AppContext extends Base {
         dispatcher: Dispatcher;
         handler: () => void;
         constructor(...args: Array<any>) {
@@ -29,7 +29,7 @@ export function Changdable<T extends Constructor<Context>>(Base: T) {
             });
         }
 
-        onChange(handler: () => void) {
+        onChange(handler: () => void): any {
             this.handler = handler;
         }
     };
