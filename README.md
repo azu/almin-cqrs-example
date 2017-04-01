@@ -34,17 +34,19 @@ Almin + CQRS example
 
 ![AppChangePayload Workflow](docs/almin-cqrs.png)
 
-### Logging
-
-- UseCase is changed -> log
-- Context#onChange is called -> log
-
-
 ## Usage
 
     npm install
     npm start
     # open http://localhost:8080
+
+### Development
+
+You can see UseCase logging with [redux-devtools-extension](https://github.com/zalmoxisus/redux-devtools-extension "redux-devtools-extension").
+
+Please see following for more details.
+
+- [almin/almin-devtools: Integrate almin into redux-devtools](https://github.com/almin/almin-devtools "almin/almin-devtools: Integrate almin into redux-devtools")
 
 ## Changelog
 
