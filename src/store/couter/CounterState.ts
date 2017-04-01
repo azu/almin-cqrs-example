@@ -7,13 +7,13 @@ export interface CounterStateLike {
 
 export class CounterState implements CounterStateLike {
     count: number;
-
     constructor(state: CounterStateLike) {
         this.count = state.count;
     }
 
-    update({counter}: {counter: Counter}): CounterState {
+    update({ counter }: { counter: Counter }): CounterState {
         return new CounterState({
+            ...this as CounterStateLike,
             count: counter.count
         });
     }
@@ -26,8 +26,8 @@ export class CounterState implements CounterStateLike {
         if (this === targetState) {
             return true;
         }
-        return Object.keys(this).every((key) => {
-            return (<any>this)[key] === (<any>targetState)[key];
+        return Object.keys(this).every((key: keyof this) => {
+            return this[key] === targetState[key];
         });
     }
 }

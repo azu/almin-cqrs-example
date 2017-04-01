@@ -10,8 +10,8 @@ export interface UpdateLoadingStatusUseCaseArgs {
     isLoading: boolean;
 }
 // Functional useCase
-export const UpdateLoadingStatusUseCase = ({ dispatcher }: FunctionalUseCaseContext) => {
+export const UpdateLoadingStatusUseCase = ({dispatcher}: FunctionalUseCaseContext) => {
     return (args: UpdateLoadingStatusUseCaseArgs) => {
         dispatcher.dispatch(new UpdateLoadingStatusUseCasePayload(args.isLoading));
     }
-}
+};
