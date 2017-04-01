@@ -7,17 +7,14 @@ import { App } from "./component/App"
 import { Context, Dispatcher } from "almin";
 import AlminReactContaine from "almin-react-container";
 import { AppStoreGroup } from "./store/AppStoreGroup";
-import { Changdable } from "./use-case/AppUseCase";
 const AlminLogger = require("almin-logger");
 const store = AppStoreGroup.create();
-const ChangedableContext = Changdable(Context);
-const context = new ChangedableContext({
+const context = new Context({
     dispatcher: new Dispatcher(),
     store
 });
 // set context
 AppLocator.context = context;
-
 const logger = new AlminLogger();
 logger.startLogging(context);
 

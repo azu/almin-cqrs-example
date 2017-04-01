@@ -8,6 +8,18 @@ import { CounterStore } from "./couter/CounterStore";
 import { CounterState } from "./couter/CounterState";
 import { AppStore } from "./app/AppStore";
 import { AppState } from "./app/AppState";
+import { Store, Payload } from "almin";
+import { AppChangePayload } from "../AppChangePayload";
+function wrapAddedChangeHandler(stores: Store[]) {
+    stores.forEach((store: Store) => {
+        store.onDispatch((payload: Payload | AppChangePayload) => {
+            if (payload instanceof AppChangePayload) {
+                store.emitChange();
+            }
+        });
+    });
+    return stores;
+}
 
 export interface AppStoreGroupState {
     appState: AppState;
@@ -16,9 +28,9 @@ export interface AppStoreGroupState {
 
 export class AppStoreGroup {
     static create() {
-        return new QueuedStoreGroup([
-            new AppStore({appRepository}),
-            new CounterStore({appRepository})
-        ]);
+        return new QueuedStoreGroup(wrapAddedChangeHandler([
+            new AppStore({ appRepository }),
+            new CounterStore({ appRepository })
+        ]));
     }
 }

@@ -19,6 +19,27 @@ Almin + CQRS example
 4. Just in time, Store convert the Domain model to the State.
 6. Render the view with the state.
 
+### AppChangePayload Workflow
+
+**Do** by Application
+**Delegate** by Almin
+
+- [Do] User do UseCase#dispatch [AppUseCase]
+- [Delegate] UseCaseExecutor: pipe to dispatcher
+- [Delegate] Context: pipe to StoreGroup
+- [Delegate] StoreGroup] pipe to *Store*s
+- [Do] Store#onDispatch -> Store#emitChange [AppStoreGroup]
+- [Delegate] StoreGroup#onChange -> Context#onChange
+- [Do] Context#onChange -> User Do
+
+![AppChangePayload Workflow](docs/almin-cqrs.png)
+
+### Logging
+
+- UseCase is changed -> log
+- Context#onChange is called -> log
+
+
 ## Usage
 
     npm install
