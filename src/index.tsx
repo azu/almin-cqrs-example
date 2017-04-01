@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import AppLocator from "./AppLocator";
 import { App } from "./component/App"
 import { Context, Dispatcher } from "almin";
-import AlminReactContaine from "almin-react-container";
+import AlminReactContainer from "almin-react-container";
 import { AppStoreGroup } from "./store/AppStoreGroup";
 const AlminDevTools = require("almin-devtools");
 const store = AppStoreGroup.create();
@@ -22,5 +22,5 @@ if (process.env.NODE_ENV !== "production") {
     devTools.init(context.getState());
 }
 
-const RootContainer = AlminReactContaine.create<AppStoreGroup>(App, context);
+const RootContainer = AlminReactContainer.create<AppStoreGroup>(App, context);
 ReactDOM.render(<RootContainer />, document.getElementById("js-app"));
