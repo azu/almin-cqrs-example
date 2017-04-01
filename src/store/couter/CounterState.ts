@@ -1,13 +1,15 @@
 // MIT © 2017 azu
 "use strict";
+import { ReduceState } from "almin-reduce-store";
 import { Counter } from "../../domain/counter/Counter";
 export interface CounterStateLike {
     count: number;
 }
 
-export class CounterState implements CounterStateLike {
+export class CounterState extends ReduceState implements CounterStateLike {
     count: number;
     constructor(state: CounterStateLike) {
+        super();
         this.count = state.count;
     }
 
@@ -15,19 +17,6 @@ export class CounterState implements CounterStateLike {
         return new CounterState({
             ...this as CounterStateLike,
             count: counter.count
-        });
-    }
-
-    /**
-     * Compare `this` properties and `targetState` properties
-     * If all properties is matched, return true.
-     */
-    equals(targetState: this) {
-        if (this === targetState) {
-            return true;
-        }
-        return Object.keys(this).every((key: keyof this) => {
-            return this[key] === targetState[key];
         });
     }
 }

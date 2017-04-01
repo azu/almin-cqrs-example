@@ -7,7 +7,7 @@ import { App } from "./component/App"
 import { Context, Dispatcher } from "almin";
 import AlminReactContaine from "almin-react-container";
 import { AppStoreGroup } from "./store/AppStoreGroup";
-const AlminLogger = require("almin-logger");
+const AlminDevTools = require("almin-devtools");
 const store = AppStoreGroup.create();
 const context = new Context({
     dispatcher: new Dispatcher(),
@@ -15,8 +15,12 @@ const context = new Context({
 });
 // set context
 AppLocator.context = context;
-const logger = new AlminLogger();
-logger.startLogging(context);
+// logger
+if (process.env.NODE_ENV !== "production") {
+    const devTools = new AlminDevTools(context);
+    devTools.connect();
+    devTools.init(context.getState());
+}
 
 const RootContainer = AlminReactContaine.create<AppStoreGroup>(App, context);
 ReactDOM.render(<RootContainer />, document.getElementById("js-app"));

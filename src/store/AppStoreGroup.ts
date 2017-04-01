@@ -8,12 +8,14 @@ import { CounterStore } from "./couter/CounterStore";
 import { CounterState } from "./couter/CounterState";
 import { AppStore } from "./app/AppStore";
 import { AppState } from "./app/AppState";
-import { Store, Payload } from "almin";
+import { Store, Payload, DidExecutedPayload, CompletedPayload } from "almin";
 import { AppChangePayload } from "../AppChangePayload";
 function wrapAddedChangeHandler(stores: Store[]) {
     stores.forEach((store: Store) => {
         store.onDispatch((payload: Payload | AppChangePayload) => {
-            if (payload instanceof AppChangePayload) {
+            if (payload instanceof DidExecutedPayload
+                || payload instanceof CompletedPayload
+                || payload instanceof AppChangePayload) {
                 store.emitChange();
             }
         });

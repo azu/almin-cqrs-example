@@ -1,14 +1,16 @@
-import { AppStateLike } from './AppState';
 // MIT © 2017 azu
+import { AppStateLike } from './AppState';
 import { UpdateLoadingStatusUseCasePayload } from "../../use-case/app/UpdateLoadingStatusUseCase";
 import { Payload } from "almin";
+import { ReduceState } from "almin-reduce-store";
 export interface AppStateLike {
     isLoading: boolean;
 }
-export class AppState implements AppStateLike {
+export class AppState extends ReduceState implements AppStateLike {
     isLoading = false;
 
     constructor(state: AppStateLike) {
+        super();
         this.isLoading = state.isLoading;
     }
 
@@ -21,18 +23,5 @@ export class AppState implements AppStateLike {
         } else {
             return this;
         }
-    }
-
-    /**
-     * Compare `this` properties and `targetState` properties
-     * If all properties is matched, return true.
-     */
-    equals(targetState: this) {
-        if (this === targetState) {
-            return true;
-        }
-        return Object.keys(this).every((key) => {
-            return (<any>this)[key] === (<any>targetState)[key];
-        });
     }
 }
