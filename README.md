@@ -27,7 +27,7 @@ Almin + CQRS example
 - [Do] User do UseCase#dispatch [AppUseCase]
 - [Delegate] UseCaseExecutor: pipe to dispatcher
 - [Delegate] Context: pipe to StoreGroup
-- [Delegate] StoreGroup] pipe to *Store*s
+- [Delegate] StoreGroup: pipe to *Store*s
 - [Do] Store#onDispatch -> Store#emitChange [AppStoreGroup]
 - [Delegate] StoreGroup#onChange -> Context#onChange
 - [Do] Context#onChange -> User Do
