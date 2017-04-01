@@ -21,6 +21,5 @@ if (process.env.NODE_ENV !== "production") {
     devTools.connect();
     devTools.init(context.getState());
 }
-
 const RootContainer = AlminReactContainer.create<AppStoreGroup>(App, context);
 ReactDOM.render(<RootContainer />, document.getElementById("js-app"));
