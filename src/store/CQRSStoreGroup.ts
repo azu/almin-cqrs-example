@@ -1,25 +1,42 @@
 // MIT © 2017 azu
 "use strict";
 import * as assert from "assert";
-import { Store, Payload, DidExecutedPayload, CompletedPayload, DispatcherPayloadMeta, ErrorPayload } from "almin";
+import {
+    Store,
+    DispatcherPayloadMeta,
+    Payload,
+    WillExecutedPayload,
+    DidExecutedPayload,
+    CompletedPayload,
+    ErrorPayload
+} from "almin";
 import { AppChangePayload } from "../AppChangePayload";
 import MapLike from "map-like";
+import { shallowEqual } from "./shallowEqual";
 const CHANGE_STORE_GROUP = "CHANGE_STORE_GROUP";
+
 /**
  * onChange flow
- * https://code2flow.com/N5yToZ
+ * https://code2flow.com/UOdnfN
  */
 export class CQRSStoreGroup extends Store {
     public stores: Array<Store>;
     // current changing stores for emitChange
-    private _changingStores: Array<Store> = [];
+    public changingStores: Array<Store> = [];
+    // current state
+    private state: any;
     // all functions to release handlers
     private _releaseHandlers: Array<Function> = [];
+    // already finished UseCase Map
+    private _finishedUseCaseMap: MapLike<string, boolean>;
+    // current working useCase
+    private _workingUseCaseMap: MapLike<string, boolean>;
 
     constructor(stores: Array<Store>) {
         super();
         this.stores = stores;
-
+        this._workingUseCaseMap = new MapLike<string, boolean>();
+        this._finishedUseCaseMap = new MapLike<string, boolean>();
         // Implementation Note:
         // Dispatch -> pipe -> Store#emitChange() if it is needed
         //          -> this.onDispatch -> If anyone store is changed, this.emitChange()
@@ -32,6 +49,8 @@ export class CQRSStoreGroup extends Store {
         });
         // after dispatching, and then emitChange
         this._startObservePayload();
+        // default state
+        this.state = this.collectState();
     }
 
     /**
@@ -40,6 +59,11 @@ export class CQRSStoreGroup extends Store {
      * @public
      */
     getState<T>(): T {
+        return this.state as T;
+    }
+
+    // actually getState
+    private collectState<T>(): T {
         const stateMap = this.stores.map(store => {
             const nextState = store.getState();
             if (process.env.NODE_ENV !== "production") {
@@ -66,12 +90,33 @@ StoreGroup#getState()["StateName"]; // state
     }
 
     /**
+     * Use `shouldStoreChange()` to let StoreGroup know if a event is not affected.
+     * The default behavior is to emitChange on every life-cycle change, and in the vast majority of cases you should rely on the default behavior.
+     *
+     * @returns {boolean}
+     * @example
+     *
+     * Want to emitChange if actually changingStore that called `Store#emitChange` is larger than 0.
+     * shouldStoreChange(_, _){
+     *    return changingStores.length > 0;
+     * }
+     */
+    shouldStoreChange(prevState: any, nextState: any) {
+        return !shallowEqual(prevState, nextState);
+    }
+
+    /**
      * emit change event
      * @public
      */
     emitChange(): void {
-        this.emit(CHANGE_STORE_GROUP, this._changingStores.slice());
-        this._pruneChangingStores();
+        const prevState = this.state;
+        const nextState = this.collectState();
+        if (this.shouldStoreChange(prevState, nextState)) {
+            this.state = nextState;
+            this.emit(CHANGE_STORE_GROUP, this.changingStores.slice());
+            this._pruneChangingStores();
+        }
     }
 
     /**
@@ -95,6 +140,7 @@ StoreGroup#getState()["StateName"]; // state
     release(): void {
         this._releaseHandlers.forEach(releaseHandler => releaseHandler());
         this._releaseHandlers.length = 0;
+        this.state = null;
         this._pruneChangingStores();
     }
 
@@ -105,14 +151,12 @@ StoreGroup#getState()["StateName"]; // state
      * @private
      */
     private _registerStore(store: Store): void {
-        // If anyone store is changed, will call `emitChange()`.
-        // It is means that
-        // 1. UseCase#dispatch -> Store#onDispatch
-        // 2. Store#emitChange -> Store#onChange
-        // 3. StoreGroup#emitChange -> Context#onChange
-        // 4. Context#getState -> get change state by dispatched
         const releaseOnChangeHandler = store.onChange(() => {
             this._addChangingStore(store);
+            // if not exist working UseCases, immediate invoke emitChange.
+            if (!this.existWorkingUseCase) {
+                this.emitChange();
+            }
         });
         // add release handler
         this._releaseHandlers.push(releaseOnChangeHandler);
@@ -120,21 +164,23 @@ StoreGroup#getState()["StateName"]; // state
 
     // register changed events
     _startObservePayload(): void {
-        const useCaseFinishedMap = new MapLike<string, boolean>();
         const observeChangeHandler = (payload: Payload, meta: DispatcherPayloadMeta) => {
             if (!meta.isTrusted) {
                 this.emitChange();
             } else if (payload instanceof AppChangePayload) {
-                this.emitChange();
+                this.emitChange(); // should be force
             } else if (payload instanceof ErrorPayload) {
-                this.emitChange(); // MayBe
+                this.emitChange();
+            } else if (payload instanceof WillExecutedPayload && meta.useCase) {
+                this._workingUseCaseMap.set(meta.useCase.id, true);
             } else if (payload instanceof DidExecutedPayload && meta.useCase && meta.isUseCaseFinished) {
-                useCaseFinishedMap.set(meta.useCase.id, true);
+                this._finishedUseCaseMap.set(meta.useCase.id, true);
                 this.emitChange(); // MayBe
             } else if (payload instanceof CompletedPayload && meta.useCase && meta.isUseCaseFinished) {
+                this._workingUseCaseMap.delete(meta.useCase.id);
                 // if the useCase is already finished, doesn't emitChange in CompletedPayload
-                if (useCaseFinishedMap.has(meta.useCase.id)) {
-                    useCaseFinishedMap.delete(meta.useCase.id);
+                if (this._finishedUseCaseMap.has(meta.useCase.id)) {
+                    this._finishedUseCaseMap.delete(meta.useCase.id);
                     return;
                 }
                 this.emitChange(); // MayBe
@@ -144,12 +190,20 @@ StoreGroup#getState()["StateName"]; // state
         this._releaseHandlers.push(releaseHandler);
     }
 
+    /**
+     * if exist working UseCase, return true
+     * @returns {boolean}
+     */
+    private get existWorkingUseCase() {
+        return this._workingUseCaseMap.size > 0;
+    }
+
     private _addChangingStore(store: Store) {
-        this._changingStores.push(store);
+        this.changingStores.push(store);
     }
 
     private _pruneChangingStores() {
-        this._changingStores = [];
+        this.changingStores = [];
     }
 
 }
