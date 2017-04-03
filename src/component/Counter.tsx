@@ -11,6 +11,12 @@ export interface CounterComponentProps {
 }
 export default class CounterComponent extends React.Component<CounterComponentProps, any> {
     render() {
+        const nope = () => {
+            AppLocator.context.useCase(() => {
+                return () => {
+                };
+            }).execute()
+        };
         const increment = () => {
             AppLocator.context.useCase(createIncrementalCounterUseCase()).execute();
         };
@@ -31,6 +37,7 @@ export default class CounterComponent extends React.Component<CounterComponentPr
         };
         return (
             <div>
+                <button onClick={nope}>nope</button>
                 <button onClick={increment}>Counter ++</button>
                 <button onClick={decrement}>Counter --</button>
                 <button onClick={random}>Random Counter</button>

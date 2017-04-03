@@ -13,16 +13,15 @@ export class CounterStore extends ReduceStore {
             count: 0
         });
         this.appRepository = appRepository;
+        this.onDispatch(payload => this.setState(this.state.reduce(payload)));
     }
 
     getState(): { counterState: CounterState } {
         const app = this.appRepository.get();
-        const newState = this.state.update({
-            counter: app.counter
-        });
-        this.setState(newState);
         return {
-            counterState: this.state
+            counterState: this.state.update({
+                counter: app.counter
+            })
         };
     }
 }
