@@ -10,7 +10,8 @@ export class CounterStore extends ReduceStore {
     constructor({ appRepository }: { appRepository: AppRepository }) {
         super();
         this.state = new CounterState({
-            count: 0
+            count: 0,
+            history: []
         });
         this.appRepository = appRepository;
         this.onDispatch(payload => this.setState(this.state.reduce(payload)));

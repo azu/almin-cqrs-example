@@ -8,6 +8,7 @@ import { createRandomCounterUseCase } from "../use-case/counter/RandomCounterUse
 import { UpdateLoadingStatusUseCase, UpdateLoadingStatusUseCaseArgs } from "../use-case/app/UpdateLoadingStatusUseCase";
 export interface CounterComponentProps {
     count: number;
+    history: Array<number>
 }
 export default class CounterComponent extends React.Component<CounterComponentProps, any> {
     render() {
@@ -44,6 +45,7 @@ export default class CounterComponent extends React.Component<CounterComponentPr
                 <p>
                     Count: {this.props.count}
                 </p>
+                <p>History: {this.props.history.join(",")}</p>
             </div>
         );
     }

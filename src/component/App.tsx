@@ -8,7 +8,7 @@ export class App extends React.Component<AppStoreGroupState, {}> {
     render() {
         const counterState = this.props.counterState;
         return <div>
-            <Counter count={counterState.count} />
+            <Counter count={counterState.count} history={counterState.history} />
             <Loading hidden={!this.props.appState.isLoading} />
         </div>
     }

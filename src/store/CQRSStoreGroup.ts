@@ -131,13 +131,17 @@ Store's state should be immutable value.`);
      * ```
      */
     shouldStoreChange(nextState: any): boolean {
-        if (shallowEqual(this.state, nextState)) {
-            return false;
-        }
         // if anyone state value is changed, return true
         return Object.keys(this.state).some(stateName => {
             const prevStateValue = this.state[stateName];
             const nextStateValue = nextState[stateName];
+            if (prevStateValue !== nextStateValue) {
+                return true;
+            }
+            // TODO: should use equals
+            if (typeof prevStateValue.equals === "function") {
+                return !prevStateValue.equals(nextStateValue);
+            }
             return !shallowEqual(prevStateValue, nextStateValue);
         });
     }
