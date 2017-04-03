@@ -20,11 +20,12 @@ const CHANGE_STORE_GROUP = "CHANGE_STORE_GROUP";
  * https://code2flow.com/UOdnfN
  */
 export class CQRSStoreGroup extends Store {
+    // current state
+    public state: any;
+    // observing stores
     public stores: Array<Store>;
     // current changing stores for emitChange
     public changingStores: Array<Store> = [];
-    // current state
-    private state: any;
     // all functions to release handlers
     private _releaseHandlers: Array<Function> = [];
     // already finished UseCase Map
@@ -65,7 +66,7 @@ export class CQRSStoreGroup extends Store {
     // actually getState
     private collectState<T>(): T {
         const stateMap = this.stores.map(store => {
-            const nextState = store.getState();
+            const nextState = store.getState() as any;
             if (process.env.NODE_ENV !== "production") {
                 assert.ok(typeof nextState == "object", `${store}: ${store.name}.getState() should return Object.
 e.g.)
@@ -83,6 +84,19 @@ Then, use can access by StateName.
 StoreGroup#getState()["StateName"]; // state
 
 `);
+                // Check immutability of Store'state
+                // https://github.com/almin/almin/issues/151
+                const isChangingStore = this.changingStores.indexOf(store) !== -1;
+                if (isChangingStore) {
+                    const isStateChangedAtLeastOne = Object.keys(nextState).some(key => {
+                        const prevStateValue = this.state[key];
+                        const nextStateValue = nextState[key];
+                        return prevStateValue !== nextStateValue;
+                    });
+                    assert.ok(isStateChangedAtLeastOne, `Store(${store.name}) called emitChange(). 
+But, this store's state is not changed.
+Store's state should be immutable value.`);
+                }
             }
             return nextState;
         });
@@ -101,8 +115,8 @@ StoreGroup#getState()["StateName"]; // state
      *    return changingStores.length > 0;
      * }
      */
-    shouldStoreChange(prevState: any, nextState: any) {
-        return !shallowEqual(prevState, nextState);
+    shouldStoreChange(nextState: any) {
+        return !shallowEqual(this.state, nextState);
     }
 
     /**
@@ -110,9 +124,8 @@ StoreGroup#getState()["StateName"]; // state
      * @public
      */
     emitChange(): void {
-        const prevState = this.state;
         const nextState = this.collectState();
-        if (this.shouldStoreChange(prevState, nextState)) {
+        if (this.shouldStoreChange(nextState)) {
             this.state = nextState;
             this.emit(CHANGE_STORE_GROUP, this.changingStores.slice());
             this._pruneChangingStores();
