@@ -14,6 +14,7 @@ import MapLike from "map-like";
 import { shallowEqual } from "./shallowEqual";
 const CHANGE_STORE_GROUP = "CHANGE_STORE_GROUP";
 
+const InitialState = {};
 /**
  * onChange flow
  * https://code2flow.com/UOdnfN
@@ -50,7 +51,7 @@ export class CQRSStoreGroup extends Store {
         // after dispatching, and then emitChange
         this._startObservePayload();
         // default state
-        this.state = this.collectState();
+        this.state = InitialState;
     }
 
     /**
@@ -67,6 +68,10 @@ export class CQRSStoreGroup extends Store {
      * @public
      */
     getState<T>(): T {
+        if (this.state === InitialState) {
+            this.state = this.collectState<T>();
+            return this.state;
+        }
         return this.state as T;
     }
 
@@ -126,7 +131,15 @@ Store's state should be immutable value.`);
      * ```
      */
     shouldStoreChange(nextState: any): boolean {
-        return !shallowEqual(this.state, nextState);
+        if (shallowEqual(this.state, nextState)) {
+            return false;
+        }
+        // if anyone state value is changed, return true
+        return Object.keys(this.state).some(stateName => {
+            const prevStateValue = this.state[stateName];
+            const nextStateValue = nextState[stateName];
+            return !shallowEqual(prevStateValue, nextStateValue);
+        });
     }
 
     /**

@@ -13,6 +13,9 @@ const context = new Context({
     dispatcher: new Dispatcher(),
     store
 });
+context.onChange(stores => {
+    console.log("CAHNGE", stores);
+});
 // set context
 AppLocator.context = context;
 // logger
