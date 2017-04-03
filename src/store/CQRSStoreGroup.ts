@@ -10,7 +10,6 @@ import {
     CompletedPayload,
     ErrorPayload
 } from "almin";
-import { AppChangePayload } from "../AppChangePayload";
 import MapLike from "map-like";
 import { shallowEqual } from "./shallowEqual";
 const CHANGE_STORE_GROUP = "CHANGE_STORE_GROUP";
@@ -52,6 +51,14 @@ export class CQRSStoreGroup extends Store {
         this._startObservePayload();
         // default state
         this.state = this.collectState();
+    }
+
+    /**
+     * if exist working UseCase, return true
+     * @returns {boolean}
+     */
+    private get existWorkingUseCase() {
+        return this._workingUseCaseMap.size > 0;
     }
 
     /**
@@ -105,17 +112,20 @@ Store's state should be immutable value.`);
 
     /**
      * Use `shouldStoreChange()` to let StoreGroup know if a event is not affected.
-     * The default behavior is to emitChange on every life-cycle change, and in the vast majority of cases you should rely on the default behavior.
+     * The default behavior is to emitChange on every life-cycle change,
+     * and in the vast majority of cases you should rely on the default behavior.
      *
-     * @returns {boolean}
-     * @example
+     * ## Example
      *
-     * Want to emitChange if actually changingStore that called `Store#emitChange` is larger than 0.
-     * shouldStoreChange(_, _){
+     * If you want to emitChange when actually changingStore that called `Store#emitChange` is larger than 0.
+     *
+     * ```js
+     * shouldStoreChange(nextState) {
      *    return changingStores.length > 0;
      * }
+     * ```
      */
-    shouldStoreChange(nextState: any) {
+    shouldStoreChange(nextState: any): boolean {
         return !shallowEqual(this.state, nextState);
     }
 
@@ -176,18 +186,31 @@ Store's state should be immutable value.`);
     }
 
     // register changed events
-    _startObservePayload(): void {
+    /* Edge case
+
+    execute(){
+        model.count = 1;
+        saveToRepository(model);
+        // DidExecute -> refresh
+        return Promise.resolve().then(() => {
+            model.count = 2;
+            saveToRepository(model)
+        }); // Complete -> refresh
+    }
+
+     */
+    private _startObservePayload(): void {
         const observeChangeHandler = (payload: Payload, meta: DispatcherPayloadMeta) => {
             if (!meta.isTrusted) {
                 this.emitChange();
-            } else if (payload instanceof AppChangePayload) {
-                this.emitChange(); // should be force
             } else if (payload instanceof ErrorPayload) {
                 this.emitChange();
             } else if (payload instanceof WillExecutedPayload && meta.useCase) {
                 this._workingUseCaseMap.set(meta.useCase.id, true);
-            } else if (payload instanceof DidExecutedPayload && meta.useCase && meta.isUseCaseFinished) {
-                this._finishedUseCaseMap.set(meta.useCase.id, true);
+            } else if (payload instanceof DidExecutedPayload && meta.useCase) {
+                if (meta.isUseCaseFinished) {
+                    this._finishedUseCaseMap.set(meta.useCase.id, true);
+                }
                 this.emitChange(); // MayBe
             } else if (payload instanceof CompletedPayload && meta.useCase && meta.isUseCaseFinished) {
                 this._workingUseCaseMap.delete(meta.useCase.id);
@@ -201,14 +224,6 @@ Store's state should be immutable value.`);
         };
         const releaseHandler = this.onDispatch(observeChangeHandler);
         this._releaseHandlers.push(releaseHandler);
-    }
-
-    /**
-     * if exist working UseCase, return true
-     * @returns {boolean}
-     */
-    private get existWorkingUseCase() {
-        return this._workingUseCaseMap.size > 0;
     }
 
     private _addChangingStore(store: Store) {
