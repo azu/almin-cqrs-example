@@ -155,7 +155,8 @@ Store's state should be immutable value.`);
             if (prevStateValue !== nextStateValue) {
                 return true;
             }
-            // TODO: should use equals
+            // TODO: State has conventional...
+            // It should be documented
             if (typeof prevStateValue.equals === "function") {
                 return !prevStateValue.equals(nextStateValue);
             }
