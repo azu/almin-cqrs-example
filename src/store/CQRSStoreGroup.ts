@@ -14,6 +14,15 @@ import MapLike from "map-like";
 import { shallowEqual } from "./shallowEqual";
 const CHANGE_STORE_GROUP = "CHANGE_STORE_GROUP";
 
+interface StoreGetState {
+    getState(prevState: {}, payload: Payload): any;
+}
+class EmptyPayload extends Payload {
+    constructor() {
+        super({ type: "__Almin_EmptyPayload__" });
+    }
+}
+const emptyPayload = new EmptyPayload();
 const InitialState = {};
 /**
  * onChange flow
@@ -23,21 +32,24 @@ export class CQRSStoreGroup extends Store {
     // current state
     public state: any;
     // observing stores
-    public stores: Array<Store>;
+    public stores: Array<Store & StoreGetState>;
     // current changing stores for emitChange
-    public changingStores: Array<Store> = [];
+    public changingStores: Array<Store & StoreGetState> = [];
     // all functions to release handlers
     private _releaseHandlers: Array<Function> = [];
     // already finished UseCase Map
     private _finishedUseCaseMap: MapLike<string, boolean>;
     // current working useCase
     private _workingUseCaseMap: MapLike<string, boolean>;
+    // store/state cache map
+    private _stateCacheMap: MapLike<Store & StoreGetState, any>;
 
-    constructor(stores: Array<Store>) {
+    constructor(stores: Array<Store & StoreGetState>) {
         super();
         this.stores = stores;
         this._workingUseCaseMap = new MapLike<string, boolean>();
         this._finishedUseCaseMap = new MapLike<string, boolean>();
+        this._stateCacheMap = new MapLike<Store, any>();
         // Implementation Note:
         // Dispatch -> pipe -> Store#emitChange() if it is needed
         //          -> this.onDispatch -> If anyone store is changed, this.emitChange()
@@ -69,16 +81,18 @@ export class CQRSStoreGroup extends Store {
      */
     getState<T>(): T {
         if (this.state === InitialState) {
-            this.state = this.collectState<T>();
+            this.state = this.collectState<T>(emptyPayload);
             return this.state;
         }
         return this.state as T;
     }
 
     // actually getState
-    private collectState<T>(): T {
+    private collectState<T>(payload: Payload): T {
         const stateMap = this.stores.map(store => {
-            const nextState = store.getState() as any;
+            // 1. get prev or empty object
+            const prevState = this._stateCacheMap.get(store) || {};
+            const nextState = store.getState(prevState, payload) as any;
             if (process.env.NODE_ENV !== "production") {
                 assert.ok(typeof nextState == "object", `${store}: ${store.name}.getState() should return Object.
 e.g.)
@@ -110,6 +124,8 @@ But, this store's state is not changed.
 Store's state should be immutable value.`);
                 }
             }
+            // 2. set prev
+            this._stateCacheMap.set(store, nextState);
             return nextState;
         });
         return Object.assign({}, ...stateMap);
@@ -150,8 +166,8 @@ Store's state should be immutable value.`);
      * emit change event
      * @public
      */
-    emitChange(): void {
-        const nextState = this.collectState();
+    emitChange(payload: Payload = emptyPayload): void {
+        const nextState = this.collectState(payload);
         if (this.shouldStoreChange(nextState)) {
             this.state = nextState;
             this.emit(CHANGE_STORE_GROUP, this.changingStores.slice());
@@ -219,16 +235,16 @@ Store's state should be immutable value.`);
     private _startObservePayload(): void {
         const observeChangeHandler = (payload: Payload, meta: DispatcherPayloadMeta) => {
             if (!meta.isTrusted) {
-                this.emitChange();
+                this.emitChange(payload);
             } else if (payload instanceof ErrorPayload) {
-                this.emitChange();
+                this.emitChange(payload);
             } else if (payload instanceof WillExecutedPayload && meta.useCase) {
                 this._workingUseCaseMap.set(meta.useCase.id, true);
             } else if (payload instanceof DidExecutedPayload && meta.useCase) {
                 if (meta.isUseCaseFinished) {
                     this._finishedUseCaseMap.set(meta.useCase.id, true);
                 }
-                this.emitChange(); // MayBe
+                this.emitChange(payload); // MayBe
             } else if (payload instanceof CompletedPayload && meta.useCase && meta.isUseCaseFinished) {
                 this._workingUseCaseMap.delete(meta.useCase.id);
                 // if the useCase is already finished, doesn't emitChange in CompletedPayload
@@ -236,7 +252,7 @@ Store's state should be immutable value.`);
                     this._finishedUseCaseMap.delete(meta.useCase.id);
                     return;
                 }
-                this.emitChange(); // MayBe
+                this.emitChange(payload); // MayBe
             }
         };
         const releaseHandler = this.onDispatch(observeChangeHandler);
