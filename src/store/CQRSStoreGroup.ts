@@ -15,8 +15,9 @@ import { shallowEqual } from "./shallowEqual";
 const CHANGE_STORE_GROUP = "CHANGE_STORE_GROUP";
 
 interface StoreGetState {
-    getState(prevState: {}, payload: Payload): any;
+    getState<T>(prevState: T, payload: Payload): T;
 }
+
 class EmptyPayload extends Payload {
     constructor() {
         super({ type: "__Almin_EmptyPayload__" });
@@ -92,7 +93,7 @@ export class CQRSStoreGroup extends Store {
         const stateMap = this.stores.map(store => {
             // 1. get prev or empty object
             const prevState = this._stateCacheMap.get(store) || {};
-            const nextState = store.getState(prevState, payload) as any;
+            const nextState = store.getState<typeof prevState>(prevState, payload);
             if (process.env.NODE_ENV !== "production") {
                 assert.ok(typeof nextState == "object", `${store}: ${store.name}.getState() should return Object.
 e.g.)

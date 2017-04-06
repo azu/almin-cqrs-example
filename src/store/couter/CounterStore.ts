@@ -10,7 +10,6 @@ export class CounterStore extends Store {
 
     constructor({ appRepository }: { appRepository: AppRepository }) {
         super();
-        // 初期値
         this.state = new CounterState({
             count: 0,
             history: []
