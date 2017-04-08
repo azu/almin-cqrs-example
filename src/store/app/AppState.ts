@@ -14,7 +14,7 @@ export class AppState extends ReduceState implements AppStateLike {
         this.isLoading = state.isLoading;
     }
 
-    reduce(payload: UpdateLoadingStatusUseCasePayload | Payload): AppState {
+    reduce(payload: UpdateLoadingStatusUseCasePayload | Payload) {
         if (payload instanceof UpdateLoadingStatusUseCasePayload) {
             return new AppState({
                 ...this as AppStateLike,

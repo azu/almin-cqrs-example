@@ -13,6 +13,9 @@ const context = new Context({
     dispatcher: new Dispatcher(),
     store
 });
+context.onChange(stores => {
+    console.log("CAHNGE", stores);
+});
 // set context
 AppLocator.context = context;
 // logger
@@ -21,6 +24,5 @@ if (process.env.NODE_ENV !== "production") {
     devTools.connect();
     devTools.init(context.getState());
 }
-
 const RootContainer = AlminReactContainer.create<AppStoreGroup>(App, context);
 ReactDOM.render(<RootContainer />, document.getElementById("js-app"));

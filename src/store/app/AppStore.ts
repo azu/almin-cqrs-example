@@ -1,8 +1,8 @@
 // MIT © 2017 azu
-import { ReduceStore } from 'almin-reduce-store/lib';
 import { AppState } from "./AppState";
 import { AppRepository } from "../../repository/AppRepository";
-export class AppStore extends ReduceStore {
+import { Store, Payload } from "almin";
+export class AppStore extends Store {
     state: AppState;
     appRepository: AppRepository;
 
@@ -12,15 +12,15 @@ export class AppStore extends ReduceStore {
             isLoading: false
         });
         this.appRepository = appRepository;
-        this.onDispatch((payload) => {
-            const newState = this.state.reduce(payload);
-            this.setState(newState);
-        });
     }
 
-    getState() {
+    getState(...args: Array<any>): any; // TODO: hack will be removed
+    getState({
+        appState = this.state
+    }, payload: Payload): { appState: AppState } {
+        const payloadToState = appState.reduce(payload);
         return {
-            appState: this.state
+            appState: payloadToState
         };
     }
 }
