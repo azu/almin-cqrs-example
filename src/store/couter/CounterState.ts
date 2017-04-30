@@ -1,6 +1,5 @@
 // MIT © 2017 azu
 "use strict";
-import { ReduceState } from "almin-reduce-store";
 import { Counter } from "../../domain/counter/Counter";
 import { Payload } from "almin";
 export interface CounterStateLike {
@@ -8,12 +7,11 @@ export interface CounterStateLike {
     history: Array<number>;
 }
 
-export class CounterState extends ReduceState implements CounterStateLike {
+export class CounterState implements CounterStateLike {
     count: number;
     history: Array<number>;
 
     constructor(state: CounterStateLike) {
-        super();
         this.count = state.count;
         this.history = state.history;
     }
