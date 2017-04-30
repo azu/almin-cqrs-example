@@ -8,7 +8,7 @@ import { CounterStore } from "./couter/CounterStore";
 import { AppStore } from "./app/AppStore";
 // store mapping
 const storeMapping = {
-    appState: new AppStore({ appRepository }),
+    appState: new AppStore(),
     counterState: new CounterStore({ appRepository })
 };
 function StoreToState<T>(mapping: StoreGroupTypes.StoreMap<T>): StoreGroupTypes.StateMap<T> {
