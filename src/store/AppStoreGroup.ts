@@ -11,11 +11,8 @@ const storeMapping = {
     appState: new AppStore(),
     counterState: new CounterStore({ appRepository })
 };
-function StoreToState<T>(mapping: StoreGroupTypes.StoreMap<T>): StoreGroupTypes.StateMap<T> {
-    return mapping as any;
-}
 // state mapping
-const stateMapping = StoreToState(storeMapping);
+const stateMapping = StoreGroupTypes.StoreToState(storeMapping);
 export type AppStoreGroupState = typeof stateMapping;
 
 export class AppStoreGroup {
