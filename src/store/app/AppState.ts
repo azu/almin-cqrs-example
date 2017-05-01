@@ -2,15 +2,13 @@
 import { AppStateLike } from './AppState';
 import { UpdateLoadingStatusUseCasePayload } from "../../use-case/app/UpdateLoadingStatusUseCase";
 import { Payload } from "almin";
-import { ReduceState } from "almin-reduce-store";
 export interface AppStateLike {
     isLoading: boolean;
 }
-export class AppState extends ReduceState implements AppStateLike {
+export class AppState implements AppStateLike {
     isLoading = false;
 
     constructor(state: AppStateLike) {
-        super();
         this.isLoading = state.isLoading;
     }
 

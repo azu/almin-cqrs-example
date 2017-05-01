@@ -2,11 +2,11 @@
 "use strict";
 import { CounterState } from "./CounterState";
 import { AppRepository } from "../../repository/AppRepository";
-import { Store, Payload } from "almin";
+import { Store, DispatchedPayload } from "almin";
 
-export class CounterStore extends Store {
-    private appRepository: AppRepository;
+export class CounterStore extends Store<CounterState> {
     state: CounterState;
+    private appRepository: AppRepository;
 
     constructor({ appRepository }: { appRepository: AppRepository }) {
         super();
@@ -17,14 +17,14 @@ export class CounterStore extends Store {
         this.appRepository = appRepository;
     }
 
-    // 更新したstateを返す
-    getState(...args: Array<any>): any; // TODO: hack will be removed
-    getState({ counterState = this.state }, payload: Payload): { counterState: CounterState } {
+    receivePayload(payload: DispatchedPayload) {
         const app = this.appRepository.get();
-        const domainToState = counterState.update({ counter: app.counter });
+        const domainToState = this.state.update({ counter: app.counter });
         const nextState = domainToState.reduce(payload);
-        return {
-            counterState: nextState
-        };
+        this.setState(nextState);
+    }
+
+    getState() {
+        return this.state;
     }
 }

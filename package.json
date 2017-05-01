@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/node": "^7.0.12",
     "@types/react": "^15.0.21",
-    "@types/react-dom": "^0.14.23",
+    "@types/react-dom": "^15.5.0",
     "almin-devtools": "^0.3.0",
     "autoprefixer": "^6.7.7",
     "awesome-typescript-loader": "^3.1.2",
@@ -68,13 +68,13 @@
     "power-assert": "^1.4.2",
     "rimraf": "^2.6.1",
     "ts-loader": "^2.0.3",
-    "typescript": "^2.2.2",
+    "typescript": "^2.3.2",
     "webpack": "^2.3.2",
     "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {
-    "almin": "^0.12.0-0",
-    "almin-react-container": "^0.1.1",
+    "almin": "^0.12.0",
+    "almin-react-container": "0.2.0-0",
     "almin-reduce-store": "^1.1.2",
     "map-like": "^1.1.0",
     "react": "^15.4.2",

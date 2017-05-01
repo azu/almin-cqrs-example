@@ -1,24 +1,22 @@
 // MIT © 2017 azu
 "use strict";
+import { StoreGroup, StoreGroupTypes } from "almin";
 // repository
 import { appRepository } from "../repository/AppRepository";
 // store
 import { CounterStore } from "./couter/CounterStore";
-import { CounterState } from "./couter/CounterState";
 import { AppStore } from "./app/AppStore";
-import { AppState } from "./app/AppState";
-import { CQRSStoreGroup } from "./CQRSStoreGroup";
-
-export interface AppStoreGroupState {
-    appState: AppState;
-    counterState: CounterState;
-}
+// store mapping
+const storeMapping = {
+    appState: new AppStore(),
+    counterState: new CounterStore({ appRepository })
+};
+// state mapping
+const stateMapping = StoreGroupTypes.StoreToState(storeMapping);
+export type AppStoreGroupState = typeof stateMapping;
 
 export class AppStoreGroup {
     static create() {
-        return new CQRSStoreGroup([
-            new AppStore({ appRepository }),
-            new CounterStore({ appRepository })
-        ]);
+        return new StoreGroup(storeMapping);
     }
 }
