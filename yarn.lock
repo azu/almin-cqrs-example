@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@types/node@^7.0.12":
-  version "7.0.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.14.tgz#1470fa002a113316ac9d9ad163fc738c7a0de2a4"
+"@types/node@^7.0.15":
+  version "7.0.15"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.15.tgz#628429289604c5f7e56c13f3a0422f3e59df1a17"
 
 "@types/react-dom@^15.5.0":
   version "15.5.0"
@@ -68,9 +68,11 @@ almin-devtools@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/almin-devtools/-/almin-devtools-0.3.0.tgz#f9e22d12bd3347050aa6a54517762c21681bf77f"
 
-almin-react-container@0.2.0-0:
-  version "0.2.0-0"
-  resolved "https://registry.yarnpkg.com/almin-react-container/-/almin-react-container-0.2.0-0.tgz#7a14b798510f17a074a34d306eb3dd7ccdb2d56f"
+almin-react-container@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/almin-react-container/-/almin-react-container-0.2.0.tgz#7a562c84228e2ba4551dae51f0e79ac7bc2bd55d"
+  dependencies:
+    shallow-equal-object "^1.0.1"
 
 almin-reduce-store@^1.1.2:
   version "1.1.2"
